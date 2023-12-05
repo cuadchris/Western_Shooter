@@ -15,7 +15,7 @@ class Player(pygame.sprite.Sprite):
         # float based movement
         self.pos = vector(self.rect.center)
         self.direction = vector()
-        self.speed = 200
+        self.speed = 1000
 
         # collisions
         self.hitbox = self.rect.inflate(0, -self.rect.height / 2)
