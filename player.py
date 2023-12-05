@@ -18,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 1000
 
         # collisions
-        self.hitbox = self.rect.inflate(0, -self.rect.height / 2)
+        self.hitbox = self.rect.inflate(-self.rect.width * 0.5, -self.rect.height / 2)
         self.collision_sprites = collision_sprites
 
         # attack
@@ -85,11 +85,13 @@ class Player(pygame.sprite.Sprite):
         self.pos.x += self.direction.x * self.speed * dt
         self.hitbox.centerx = round(self.pos.x)
         self.rect.centerx = self.hitbox.centerx
+        self.collision("horizontal")
 
         # vertical movement
         self.pos.y += self.direction.y * self.speed * dt
         self.hitbox.centery = round(self.pos.y)
         self.rect.centery = self.hitbox.centery
+        self.collision("vertical")
 
     def animate(self, dt):
         current_animation = self.animations[self.status]
@@ -100,6 +102,22 @@ class Player(pygame.sprite.Sprite):
             if self.attacking:
                 self.attacking = False
         self.image = current_animation[int(self.frame_index)]
+
+    def collision(self, direction):
+        for sprite in self.collision_sprites.sprites():
+            if sprite.hitbox.colliderect(self.hitbox):
+                if direction == "horizontal":
+                    if self.direction.x > 0:  # moving right
+                        self.hitbox.right = sprite.hitbox.left
+                    if self.direction.x < 0:  # moving left
+                        self.hitbox.left = sprite.hitbox.right
+                    self.rect.centerx = self.pos.x = self.hitbox.centerx
+                else:  # vertical
+                    if self.direction.y > 0:  # moving down
+                        self.hitbox.bottom = sprite.hitbox.top
+                    if self.direction.y < 0:  # moving up
+                        self.hitbox.top = sprite.hitbox.bottom
+                    self.rect.centery = self.pos.y = self.hitbox.centery
 
     def update(self, dt):
         self.input()
