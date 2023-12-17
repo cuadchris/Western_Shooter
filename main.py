@@ -41,11 +41,29 @@ class Game:
         self.all_sprites = AllSprites()
         self.obstacles = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
+        self.monsters = pygame.sprite.Group()
 
         self.setup()
 
     def create_bullet(self, pos, direction):
         Bullet(pos, direction, self.bullet_surf, [self.all_sprites, self.bullets])
+
+    def bullet_collision(self):
+        # bullet obstacle collision
+        for obstacle in self.obstacles.sprites():
+            pygame.sprite.spritecollide(obstacle, self.bullets, True)
+
+        # bullet monster collision
+        for bullet in self.bullets.sprites():
+            sprites = pygame.sprite.spritecollide(bullet, self.monsters, False)
+            if sprites:
+                bullet.kill()
+                for sprite in sprites:
+                    sprite.damage()
+
+        # player bullet collision
+        if pygame.sprite.spritecollide(self.player, self.bullets, True):
+            self.player.damage()
 
     def setup(self):
         tmx_map = load_pygame("./data/map.tmx")
@@ -71,7 +89,7 @@ class Game:
             if obj.name == "Coffin":
                 Coffin(
                     (obj.x, obj.y),
-                    self.all_sprites,
+                    [self.all_sprites, self.monsters],
                     PATHS["coffin"],
                     self.obstacles,
                     self.player,
@@ -80,10 +98,11 @@ class Game:
             if obj.name == "Cactus":
                 Cactus(
                     (obj.x, obj.y),
-                    self.all_sprites,
+                    [self.all_sprites, self.monsters],
                     PATHS["cactus"],
                     self.obstacles,
                     self.player,
+                    self.create_bullet,
                 )
 
     def run(self):
@@ -97,6 +116,7 @@ class Game:
 
             # update groups
             self.all_sprites.update(dt)
+            self.bullet_collision()
 
             # draw groups
             self.display_surface.fill("black")
