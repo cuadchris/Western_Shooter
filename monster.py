@@ -121,6 +121,7 @@ class Cactus(Entity, Monster):
             pos = self.rect.center + direction * 150
             self.create_bullet(pos, direction)
             self.bullet_shot = True
+            self.shoot_sound.play()
 
         self.frame_index += 7 * dt
 

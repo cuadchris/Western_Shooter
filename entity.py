@@ -16,7 +16,7 @@ class Entity(pygame.sprite.Sprite):
         # float based movement
         self.pos = vector(self.rect.center)
         self.direction = vector()
-        self.speed = 1000
+        self.speed = 200
 
         # collisions
         self.hitbox = self.rect.inflate(-self.rect.width * 0.5, -self.rect.height / 2)
@@ -30,6 +30,12 @@ class Entity(pygame.sprite.Sprite):
         self.health = 3
         self.is_vulnerable = True
         self.hit_time = None
+
+        # sound
+        self.hit_sound = pygame.mixer.Sound("./sound/hit.mp3")
+        self.hit_sound.set_volume(0.75)
+        self.shoot_sound = pygame.mixer.Sound("./sound/bullet.wav")
+        self.hit_sound.set_volume(0.75)
 
     def blink(self):
         if not self.is_vulnerable:
@@ -48,6 +54,7 @@ class Entity(pygame.sprite.Sprite):
             self.health -= 1
             self.is_vulnerable = False
             self.hit_time = pygame.time.get_ticks()
+            self.hit_sound.play()
 
     def check_death(self):
         if self.health <= 0:
